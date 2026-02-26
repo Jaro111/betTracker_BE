@@ -2,7 +2,19 @@ const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize(process.env.URI, {
   dialect: "postgres",
-  logging: false, // Set to true for debugging
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // kluczowe dla Supabase certs
+    },
+  },
+  logging: console.log, // włącz, zobaczysz dokładne zapytania i błędy
+  pool: {
+    max: 5, // małe wartości na shared pooler
+    min: 0,
+    acquire: 30000,
+    idle: 20000, // dłuższy idle pomaga przy "terminated unexpectedly"
+  },
 });
 
 sequelize.authenticate();
