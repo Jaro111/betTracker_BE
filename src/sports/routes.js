@@ -1,9 +1,12 @@
 const { Router } = require("express");
 const sportRouter = Router();
 
-const { addSport } = require("./controllers.js");
-const Sport = require("./model.js");
+const { addSport, getSports } = require("./controllers.js");
+
+const { tokenCheck } = require("../middleware/auth.js");
 
 sportRouter.post("/sport/addSport", addSport);
+
+sportRouter.get("/sport/getSports", tokenCheck, getSports);
 
 module.exports = sportRouter;

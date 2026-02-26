@@ -132,7 +132,7 @@ const getOdds = async (req, res) => {
     const flatOpportunities = flattenAndSortOpportunities(events);
 
     // // Zapisujemy do pliku – zawsze pełna lista
-    const fs = require("fs");
+    // const fs = require("fs");
     // fs.writeFileSync(
     //   "flat_okazje.json",
     //   JSON.stringify(flatOpportunities, null, 2),

@@ -15,6 +15,23 @@ const addSport = async (req, res) => {
   }
 };
 
+// getUsers
+const getSports = async (req, res) => {
+  try {
+    if (!req.authCheck) {
+      res.status(401).json({ message: "Sorry You are not authorized" });
+      return;
+    }
+    const sports = await Sport.findAll();
+    res.status(200).json({ message: `Sports uploaded`, sports: sports });
+    req.user = users;
+    //
+  } catch (error) {
+    res.status(501).json({ message: error.message, error: error });
+  }
+};
+
 module.exports = {
   addSport: addSport,
+  getSports: getSports,
 };
