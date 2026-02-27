@@ -26,7 +26,7 @@ const Sport = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: true },
+  { timestamps: false },
 );
 
 module.exports = Sport;
