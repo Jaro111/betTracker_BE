@@ -8,11 +8,12 @@ const sportRouter = require("./sports/routes");
 const commonRouter = require("./common/routes");
 
 const app = express();
-// ── CORS – wersja oficjalnie polecana przez Vercel ────────────────────────
+
+// ── CORS – włącz jako pierwsze, konfiguracja oficjalna Vercel ────────────────
 app.use(
   cors({
-    origin: "*", // ← na testy pozwól na wszystko (localhost + frontend Vercel)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    origin: "*", // ← testowo wszystko, potem ograniczysz
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     preflightContinue: false,
@@ -20,27 +21,32 @@ app.use(
   }),
 );
 
-// Ręczna obsługa OPTIONS (czasami Vercel tego wymaga dodatkowo)
-app.options("*", cors());
-
-const port = process.env.PORT || 5001;
-
+// Middleware do JSON
 app.use(express.json());
 
+// Trasy
 app.use(userRouter);
 app.use(sportRouter);
 app.use(commonRouter);
 
-// =====================================================
+// Testowy endpoint do sprawdzenia
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
+});
 
+// Sync tabel – tylko lokalnie lub raz przy starcie (nie w produkcji!)
 const SyncTables = () => {
   User.sync();
   Sport.sync();
 };
 
-app.listen(port, () => {
-  SyncTables();
-  console.log(`Server is listening on ${port}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  const port = process.env.PORT || 5001;
+  app.listen(port, () => {
+    SyncTables();
+    console.log(`Lokalnie: http://localhost:${port}`);
+  });
+}
 
+// Najważniejsze – eksport app dla Vercel Serverless
 module.exports = app;
