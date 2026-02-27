@@ -42,3 +42,5 @@ app.listen(port, () => {
   SyncTables();
   console.log(`Server is listening on ${port}`);
 });
+
+module.exports = app;
