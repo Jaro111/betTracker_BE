@@ -46,5 +46,7 @@ const SyncTables = () => {
 };
 
 app.listen(port, () => {
-  console.log(`Serwer słucha na porcie ${port}`);
+  // resetTables();
+  SyncTables();
+  console.log(`Server listen on ${port}`);
 });
