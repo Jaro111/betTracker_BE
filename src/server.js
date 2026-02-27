@@ -6,7 +6,7 @@ const express = require("express");
 // const userRouter = require("./users/routes");
 // const sportRouter = require("./sports/routes");
 // const commonRouter = require("./common/routes");
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT) || 8080;
 
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
