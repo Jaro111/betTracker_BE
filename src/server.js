@@ -11,19 +11,13 @@ const port = process.env.PORT || 5001;
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://twoja-domena-vercel.app",
-];
-
 app.use(
   cors({
     origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
 );
-
-app.options("/*", cors());
 
 // Middleware do JSON
 app.use(express.json());
