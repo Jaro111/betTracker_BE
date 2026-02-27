@@ -8,38 +8,25 @@ const sportRouter = require("./sports/routes");
 const commonRouter = require("./common/routes");
 
 const app = express();
-
-const port = process.env.PORT || 5001;
-
-app.use(express.json());
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Lista dozwolonych originów – dodawaj nowe w miarę potrzeby
-      const allowedOrigins = [
-        "http://localhost:5173", // Vite lokalnie
-        "http://localhost:3000", // ewentualnie CRA
-        "https://bet-tracker-be.vercel.app", // Twój frontend na Vercel (zmień nazwę)
-        "*", // NA TESTY – potem usuń!
-      ];
-
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        allowedOrigins.includes("*")
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "http://localhost:5173", // Vite lokalnie (Twój frontend)
+      "http://localhost:3000", // ewentualnie Create React App
+      "*", // NA TESTY – pozwala na wszystko (usuń później!)
+      // po wdrożeniu frontendu dodaj: 'https://twoja-frontend.vercel.app'
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    credentials: true, // jeśli używasz ciasteczek / auth
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // jeśli używasz tokenów/ciasteczek
     preflightContinue: false,
     optionsSuccessStatus: 204,
   }),
 );
+
+const port = process.env.PORT || 5001;
+
+app.use(express.json());
 
 app.use(userRouter);
 app.use(sportRouter);
