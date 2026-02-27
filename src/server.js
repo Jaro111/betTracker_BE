@@ -10,17 +10,9 @@ const commonRouter = require("./common/routes");
 const app = express();
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173", // Vite lokalnie (Twój frontend)
-      "http://localhost:3000", // ewentualnie Create React App
-      "*", // NA TESTY – pozwala na wszystko (usuń później!)
-      // po wdrożeniu frontendu dodaj: 'https://twoja-frontend.vercel.app'
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // jeśli używasz tokenów/ciasteczek
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+    origin: "*", // na testy – później ograniczysz
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
   }),
 );
 
