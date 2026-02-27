@@ -8,13 +8,20 @@ const sportRouter = require("./sports/routes");
 const commonRouter = require("./common/routes");
 
 const app = express();
+// ── CORS – wersja oficjalnie polecana przez Vercel ────────────────────────
 app.use(
   cors({
-    origin: "*", // na testy – później ograniczysz
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
+    origin: "*", // ← na testy pozwól na wszystko (localhost + frontend Vercel)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   }),
 );
+
+// Ręczna obsługa OPTIONS (czasami Vercel tego wymaga dodatkowo)
+app.options("*", cors());
 
 const port = process.env.PORT || 5001;
 
