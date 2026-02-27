@@ -8,10 +8,6 @@ const sportRouter = require("./sports/routes");
 const commonRouter = require("./common/routes");
 
 const app = express();
-
-// ── CORS – włącz jako pierwsze, konfiguracja oficjalna Vercel ────────────────
-const cors = require("cors");
-
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
 app.use(
   cors({
