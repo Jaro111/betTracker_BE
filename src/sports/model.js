@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 
-const sequelize = require("../db/connection");
+const { sequelize } = require("../db/connection");
 
 const Sport = sequelize.define(
   "Sport",
@@ -26,7 +26,7 @@ const Sport = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: false },
+  { timestamps: true },
 );
 
 module.exports = Sport;
