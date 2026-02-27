@@ -9,7 +9,25 @@ const commonRouter = require("./common/routes");
 
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // na testy – potem zamień na konkretną domenę frontendu
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    optionsSuccessStatus: 204,
+  }),
+);
+// Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+  );
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(204);
+});
 
 // Middleware do JSON
 app.use(express.json());
