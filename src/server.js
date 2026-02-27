@@ -11,13 +11,25 @@ const port = process.env.PORT || 5001;
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://twoja-domena-vercel.app",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
-    methods: ["POST", "GET", "PUT", "DELETE"],
   }),
 );
+
+app.options("*", cors());
 
 // Middleware do JSON
 app.use(express.json());
@@ -26,11 +38,6 @@ app.use(express.json());
 app.use(userRouter);
 app.use(sportRouter);
 app.use(commonRouter);
-
-// Testowy endpoint do sprawdzenia
-app.get("/data", (req, res) => {
-  res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
-});
 
 // Sync tabel – tylko lokalnie lub raz przy starcie (nie w produkcji!)
 const SyncTables = () => {
@@ -43,7 +50,7 @@ app.listen(port, () => {
   SyncTables();
   console.log(`Server listen on ${port}`);
 });
-app.get("/api/public-test", (req, res) => {
-  console.log("Public test request przyszedł");
-  res.json({ message: "CORS działa – public endpoint OK" });
+// Testowy endpoint do sprawdzenia
+app.get("/data", (req, res) => {
+  res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
 });
