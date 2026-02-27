@@ -11,16 +11,12 @@ const port = process.env.PORT || 5001;
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
 console.log("START: Backend wystartował – CORS włączony jako pierwsze");
-app.use(
-  cors({
-    origin: "*", // na testy – potem zamień na konkretną domenę frontendu
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    optionsSuccessStatus: 204,
-  }),
-);
 
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(cors(corsOptions));
 // Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
 console.log("CORS middleware załadowany – nagłówki powinny być wysyłane");
 // Middleware do JSON
