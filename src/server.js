@@ -1,11 +1,11 @@
 require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
-// const User = require("./users/model");
-// const Sport = require("./sports/model");
-// const userRouter = require("./users/routes");
-// const sportRouter = require("./sports/routes");
-// const commonRouter = require("./common/routes");
+const User = require("./users/model");
+const Sport = require("./sports/model");
+const userRouter = require("./users/routes");
+const sportRouter = require("./sports/routes");
+const commonRouter = require("./common/routes");
 const PORT = Number(process.env.PORT) || 8080;
 
 const app = express();
@@ -23,16 +23,16 @@ app.use(
 // Middleware do JSON
 app.use(express.json());
 
-// Trasy
-// app.use(userRouter);
-// app.use(sportRouter);
-// app.use(commonRouter);
+Trasy;
+app.use(userRouter);
+app.use(sportRouter);
+app.use(commonRouter);
 
-// // Sync tabel – tylko lokalnie lub raz przy starcie (nie w produkcji!)
-// const SyncTables = () => {
-//   User.sync();
-//   Sport.sync();
-// };
+// Sync tabel – tylko lokalnie lub raz przy starcie (nie w produkcji!)
+const SyncTables = () => {
+  User.sync();
+  Sport.sync();
+};
 // Testowy endpoint do sprawdzenia
 app.get("/data", (req, res) => {
   res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
