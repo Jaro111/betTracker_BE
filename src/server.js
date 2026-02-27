@@ -10,7 +10,6 @@ const port = process.env.PORT || 5001;
 
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
-console.log("START: Backend wystartował – CORS włączony jako pierwsze");
 
 const corsOptions = {
   origin: "*",
@@ -18,7 +17,22 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
-console.log("CORS middleware załadowany – nagłówki powinny być wysyłane");
+
+app.use((req, res, next) => {
+  console.log("Ręczny middleware CORS – request:", req.method, req.url);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+  );
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    console.log("Preflight OPTIONS – wysyłanie 204");
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Middleware do JSON
 app.use(express.json());
 
@@ -26,9 +40,6 @@ app.use(express.json());
 app.use(userRouter);
 app.use(sportRouter);
 app.use(commonRouter);
-console.log(
-  "User router załadowany – jeśli tu dojdzie, to authCheck powinien mieć CORS",
-);
 
 // Testowy endpoint do sprawdzenia
 app.get("/api/test", (req, res) => {
