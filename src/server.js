@@ -23,7 +23,6 @@ app.use(
 // Middleware do JSON
 app.use(express.json());
 
-Trasy;
 app.use(userRouter);
 app.use(sportRouter);
 app.use(commonRouter);
