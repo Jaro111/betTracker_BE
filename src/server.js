@@ -6,6 +6,7 @@ const Sport = require("./sports/model");
 const userRouter = require("./users/routes");
 const sportRouter = require("./sports/routes");
 const commonRouter = require("./common/routes");
+const port = process.env.PORT || 5001;
 
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
@@ -44,10 +45,6 @@ const SyncTables = () => {
   Sport.sync();
 };
 
-if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 5001;
-  app.listen(port, () => {
-    SyncTables();
-    console.log(`Lokalnie: http://localhost:${port}`);
-  });
-}
+app.listen(port, () => {
+  console.log(`Serwer słucha na porcie ${port}`);
+});
