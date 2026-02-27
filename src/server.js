@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173/",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   }),
 );
@@ -27,7 +27,7 @@ app.use(sportRouter);
 app.use(commonRouter);
 
 // Testowy endpoint do sprawdzenia
-app.get("/api/test", (req, res) => {
+app.get("/data", (req, res) => {
   res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
 });
 
