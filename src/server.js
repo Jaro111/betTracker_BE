@@ -11,27 +11,12 @@ const port = process.env.PORT || 5001;
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
 
-const corsOptions = {
-  origin: "*",
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-app.use(cors(corsOptions));
-// Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
-
-app.use((req, res, next) => {
-  console.log("Ręczny middleware CORS – request:", req.method, req.url);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-  );
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    console.log("Preflight OPTIONS – wysyłanie 204");
-    return res.sendStatus(204);
-  }
-  next();
-});
+app.use(
+  cors({
+    origin: "http://localhost:5173/",
+    methods: ["GET", "POST"],
+  }),
+);
 
 // Middleware do JSON
 app.use(express.json());
