@@ -34,8 +34,7 @@ const SyncTables = () => {
   Sport.sync();
 };
 
-app.listen(port, () => {
-  // resetTables();
+app.listen(port, "0.0.0.0", () => {
   SyncTables();
   console.log(`Server listen on ${port}`);
 });
