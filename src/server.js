@@ -12,14 +12,24 @@ const app = express();
 // ── CORS – włącz jako pierwsze, konfiguracja oficjalna Vercel ────────────────
 app.use(
   cors({
-    origin: "*", // ← testowo wszystko, potem ograniczysz
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    origin: "*", // testowo wszystko – potem ograniczysz
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    preflightContinue: false,
     optionsSuccessStatus: 204,
   }),
 );
+
+// Ręczna obsługa OPTIONS (Railway lubi to mieć)
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+  );
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(204);
+});
 
 // Middleware do JSON
 app.use(express.json());
