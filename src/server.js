@@ -65,6 +65,6 @@ app.get("/data", (req, res) => {
 });
 
 // Start server – zawsze ostatnie
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
