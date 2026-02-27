@@ -10,15 +10,24 @@ const commonRouter = require("./common/routes");
 const app = express();
 
 // ── CORS – włącz jako pierwsze, konfiguracja oficjalna Vercel ────────────────
+const cors = require("cors");
+
+// Poprawna konfiguracja CORS – działa na Railway/Vercel
 app.use(
   cors({
-    origin: "*", // testowo wszystko – potem ograniczysz
+    origin: "*", // testowo wszystko – potem ograniczysz do domeny frontendu
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+    preflightContinue: false,
     optionsSuccessStatus: 204,
   }),
 );
+
+// Ręczna obsługa OPTIONS – jeśli middleware cors nie wystarcza
+app.options("*", (req, res) => {
+  res.sendStatus(204);
+});
 
 // Ręczna obsługa OPTIONS (Railway lubi to mieć)
 app.options("*", (req, res) => {
