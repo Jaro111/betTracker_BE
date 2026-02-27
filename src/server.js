@@ -34,9 +34,9 @@ const SyncTables = () => {
   Sport.sync();
 };
 
-app.listen(port, "0.0.0.0", () => {
+app.listen(process.env.PORT || 8080, "0.0.0.0", () => {
   SyncTables();
-  console.log(`Server listen on ${port}`);
+  console.log("Server running");
 });
 // Testowy endpoint do sprawdzenia
 app.get("/data", (req, res) => {
