@@ -19,15 +19,6 @@ app.use(
   }),
 );
 // Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-  );
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.sendStatus(204);
-});
 
 // Middleware do JSON
 app.use(express.json());
