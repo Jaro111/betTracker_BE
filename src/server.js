@@ -9,6 +9,7 @@ const commonRouter = require("./common/routes");
 
 const app = express();
 // Poprawna konfiguracja CORS – działa na Railway/Vercel
+console.log("START: Backend wystartował – CORS włączony jako pierwsze");
 app.use(
   cors({
     origin: "*", // na testy – potem zamień na konkretną domenę frontendu
@@ -18,8 +19,9 @@ app.use(
     optionsSuccessStatus: 204,
   }),
 );
-// Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
 
+// Ręczna obsługa preflight (Railway lubi to mieć dodatkowo)
+console.log("CORS middleware załadowany – nagłówki powinny być wysyłane");
 // Middleware do JSON
 app.use(express.json());
 
@@ -27,6 +29,9 @@ app.use(express.json());
 app.use(userRouter);
 app.use(sportRouter);
 app.use(commonRouter);
+console.log(
+  "User router załadowany – jeśli tu dojdzie, to authCheck powinien mieć CORS",
+);
 
 // Testowy endpoint do sprawdzenia
 app.get("/api/test", (req, res) => {
