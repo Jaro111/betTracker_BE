@@ -44,13 +44,13 @@ const SyncTables = () => {
   User.sync();
   Sport.sync();
 };
+app.get("/api/public-test", (req, res) => {
+  console.log("Public test request przyszedł");
+  res.json({ message: "CORS działa – public endpoint OK" });
+});
 
 app.listen(port, () => {
   // resetTables();
   SyncTables();
   console.log(`Server listen on ${port}`);
-});
-app.get("/api/public-test", (req, res) => {
-  console.log("Public test request przyszedł");
-  res.json({ message: "CORS działa – public endpoint OK" });
 });
