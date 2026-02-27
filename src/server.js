@@ -33,11 +33,11 @@ const SyncTables = () => {
   User.sync();
   Sport.sync();
 };
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
 // Testowy endpoint do sprawdzenia
 app.get("/data", (req, res) => {
   res.json({ message: "Backend na Vercel DZIAŁA! CORS OK" });
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
