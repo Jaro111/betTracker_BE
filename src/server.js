@@ -66,6 +66,3 @@ if (process.env.NODE_ENV !== "production") {
     console.log(`Lokalnie: http://localhost:${port}`);
   });
 }
-
-// Najważniejsze – eksport app dla Vercel Serverless
-module.exports = app;
