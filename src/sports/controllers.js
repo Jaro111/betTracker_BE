@@ -23,8 +23,11 @@ const getSports = async (req, res) => {
       return;
     }
     const sports = await Sport.findAll();
+    if (!sports || sports.length === 0) {
+      return res.status(404).json({ message: "No sports found" }); // Wysyłamy odpowiedź tylko raz
+    }
     res.status(200).json({ message: `Sports uploaded`, sports: sports });
-    req.user = users;
+    // req.user = users;
     //
   } catch (error) {
     res.status(501).json({ message: error.message, error: error });
