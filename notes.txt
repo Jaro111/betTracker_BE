@@ -1,23 +1,179 @@
-const { Sequelize } = require("sequelize");
+require("dotenv").config();
 
-const sequelize = new Sequelize(process.env.URI, {
-  dialect: "postgres",
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false, // kluczowe dla Supabase certs
-    },
-  },
-  logging: console.log, // włącz, zobaczysz dokładne zapytania i błędy
-  pool: {
-    max: 5, // małe wartości na shared pooler
-    min: 0,
-    acquire: 30000,
-    idle: 20000, // dłuższy idle pomaga przy "terminated unexpectedly"
-  },
-});
+const API_KEY = process.env.ODDS_API_KEY;
+const SPORT = "soccer_epl";
+const REGIONS = "uk";
+const MARKETS = "h2h,h2h_lay,totals"; // tylko totals (bez totals_lay – nie istnieje)
 
-sequelize.authenticate();
-console.log("DataBase connection is working...");
+async function fetchOdds() {
+  const now = new Date();
+  const fromDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+  const from = fromDate.toISOString().replace(/\.\d{3}Z$/, "Z");
 
-module.exports = sequelize;
+  const toDate = new Date(fromDate);
+  toDate.setUTCDate(toDate.getUTCDate() + 21);
+  const to = toDate.toISOString().replace(/\.\d{3}Z$/, "Z");
+
+  const params = new URLSearchParams({
+    apiKey: API_KEY,
+    regions: REGIONS,
+    markets: MARKETS,
+    oddsFormat: "decimal",
+    dateFormat: "iso",
+    commenceTimeFrom: from,
+    commenceTimeTo: to,
+  });
+
+  const url = `https://api.the-odds-api.com/v4/sports/${SPORT}/odds?${params}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error ${response.status}: ${text}`);
+  }
+
+  return response.json();
+}
+
+function flattenComparisons(events) {
+  const flat = [];
+
+  events.forEach(event => {
+    const match = `${event.home_team} v ${event.away_team}`;
+    const dateTime = event.commence_time.slice(0, 16).replace("T", " ");
+
+    // ── Zbieramy lay z giełd ─────────────────────────────────────────────
+    const layData = {
+      h2h: { Betfair: {}, Smarkets: {} },
+      totals: { Betfair: {}, Smarkets: {} }
+    };
+
+    // Betfair
+    const betfair = event.bookmakers?.find(b => b.key === "betfair_ex_uk");
+    if (betfair) {
+      // h2h_lay
+      const h2hLay = betfair.markets?.find(m => m.key === "h2h_lay");
+      if (h2hLay) {
+        h2hLay.outcomes.forEach(o => {
+          if (o.price) layData.h2h.Betfair[o.name] = o.price;
+        });
+      }
+
+      // totals – lay na Over = back na Under (symetria)
+      const totals = betfair.markets?.find(m => m.key === "totals");
+      if (totals) {
+        totals.outcomes.forEach(o => {
+          if (o.lay?.price) {
+            // lay na tę stronę
+            layData.totals.Betfair[o.name] = o.lay.price;
+          }
+        });
+      }
+    }
+
+    // Smarkets – analogicznie
+    const smarkets = event.bookmakers?.find(b => b.key === "smarkets");
+    if (smarkets) {
+      const h2hLay = smarkets.markets?.find(m => m.key === "h2h_lay");
+      if (h2hLay) {
+        h2hLay.outcomes.forEach(o => {
+          if (o.price) layData.h2h.Smarkets[o.name] = o.price;
+        });
+      }
+
+      const totals = smarkets.markets?.find(m => m.key === "totals");
+      if (totals) {
+        totals.outcomes.forEach(o => {
+          if (o.lay?.price) {
+            layData.totals.Smarkets[o.name] = o.lay.price;
+          }
+        });
+      }
+    }
+
+    // ── Przetwarzamy bukmacherów ─────────────────────────────────────────
+    event.bookmakers.forEach(book => {
+      if (book.key === "betfair_ex_uk" || book.key === "smarkets") return;
+
+      // h2h
+      const h2h = book.markets?.find(m => m.key === "h2h");
+      if (h2h) {
+        h2h.outcomes.forEach(outcome => {
+          const bet = outcome.name;
+          const back = outcome.price;
+
+          ["Betfair", "Smarkets"].forEach(ex => {
+            const lay = layData.h2h[ex][bet];
+            if (typeof lay === "number") {
+              const spread = back - lay;
+              flat.push({
+                match,
+                dateTime,
+                market: "h2h",
+                bet,
+                bookmaker: book.title || book.key,
+                back: Number(back.toFixed(2)),
+                lay: Number(lay.toFixed(2)),
+                spread: Number(spread.toFixed(3)),
+                exchange: ex
+              });
+            }
+          });
+        });
+      }
+
+      // totals – symetria over/under
+      const totals = book.markets?.find(m => m.key === "totals");
+      if (totals) {
+        totals.outcomes.forEach(outcome => {
+          const bet = outcome.name; // "Over 2.5" lub "Under 2.5"
+          const back = outcome.price;
+
+          ["Betfair", "Smarkets"].forEach(ex => {
+            const lay = layData.totals[ex][bet];
+            if (typeof lay === "number") {
+              const spread = back - lay;
+              flat.push({
+                match,
+                dateTime,
+                market: "totals",
+                bet,
+                bookmaker: book.title || book.key,
+                back: Number(back.toFixed(2)),
+                lay: Number(lay.toFixed(2)),
+                spread: Number(spread.toFixed(3)),
+                exchange: ex
+              });
+            }
+          });
+        });
+      }
+    });
+  });
+
+  // Sort po spreadzie malejąco (od największych + do największych ujemnych)
+  flat.sort((a, b) => b.spread - a.spread);
+
+  return flat;
+}
+
+(async () => {
+  try {
+    const events = await fetchOdds();
+    const flatData = flattenComparisons(events);
+
+    const fs = require("fs");
+    fs.writeFileSync("all_comparisons_h2h_totals.json", JSON.stringify(flatData, null, 2), "utf8");
+    console.log(`Zapisano ${flatData.length} wierszy do all_comparisons_h2h_totals.json`);
+
+    console.log(`Łącznie wierszy: ${flatData.length}`);
+    const positive = flatData.filter(r => r.spread > 0);
+    console.log(`Dodatnich spreadów: ${positive.length}`);
+
+    console.log("Top 10 (najlepsze spready):");
+    console.log(JSON.stringify(flatData.slice(0, 10), null, 2));
+  } catch (err) {
+    console.error("Błąd:", err.message);
+  }
+})();

@@ -131,19 +131,29 @@ const getOdds = async (req, res) => {
     );
     const flatOpportunities = flattenAndSortOpportunities(events);
 
-    // // Zapisujemy do pliku – zawsze pełna lista
+    const excluded = new Set(["Betfair", "Smarkets"]); // ← tu wpisz co chcesz pominąć
+
+    const uniqueBookmakers = Array.from(
+      new Set(flatOpportunities.map((item) => item.bookmaker)),
+      (bk) => (!excluded.has(bk) ? bk : undefined),
+    ).filter(Boolean);
+
     // const fs = require("fs");
     // fs.writeFileSync(
     //   "flat_okazje.json",
-    //   JSON.stringify(flatOpportunities, null, 2),
+    //   JSON.stringify(
+    //     { flatOpportunities: flatOpportunities, bookmakers: uniqueBookmakers },
+    //     null,
+    //     2,
+    //   ),
     //   "utf8",
     // );
-    // console.log(
-    //   `Zapisano ${flatOpportunities.length} wierszy do flat_okazje.json`,
-    // );
-    res
-      .status(201)
-      .json({ message: `Uploaded`, flatOpportunities: flatOpportunities });
+
+    res.status(201).json({
+      message: `Uploaded`,
+      flatOpportunities: flatOpportunities,
+      uniqueBookmakers: uniqueBookmakers,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message, error: error });
   }
