@@ -54,6 +54,7 @@ const flattenAndSortOpportunities = (events) => {
 
     // Betfair
     const betfair = event.bookmakers?.find((b) => b.key === "betfair_ex_uk");
+    // console.log(event.bookmakers);
     if (betfair) {
       const layM = betfair.markets?.find((m) => m.key === "h2h_lay");
       if (layM) {
@@ -130,25 +131,13 @@ const getOdds = async (req, res) => {
       req.body.markets,
     );
     const flatOpportunities = flattenAndSortOpportunities(events);
-
     const excluded = new Set(["Betfair", "Smarkets"]); // ← tu wpisz co chcesz pominąć
 
     const uniqueBookmakers = Array.from(
       new Set(flatOpportunities.map((item) => item.bookmaker)),
       (bk) => (!excluded.has(bk) ? bk : undefined),
     ).filter(Boolean);
-
-    // const fs = require("fs");
-    // fs.writeFileSync(
-    //   "flat_okazje.json",
-    //   JSON.stringify(
-    //     { flatOpportunities: flatOpportunities, bookmakers: uniqueBookmakers },
-    //     null,
-    //     2,
-    //   ),
-    //   "utf8",
-    // );
-
+    //
     res.status(201).json({
       message: `Uploaded`,
       flatOpportunities: flatOpportunities,
